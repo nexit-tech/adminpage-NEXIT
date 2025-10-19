@@ -6,6 +6,8 @@ import ModalNovoPortfolio from './components/ModalNovoPortfolio'
 import ModalEditarPortfolio from './components/ModalEditarPortfolio'
 import ModalVisualizarPortfolio from './components/ModalVisualizarPortfolio'
 import ModalExcluirPortfolio from './components/ModalExcluirPortfolio'
+import Toast from '@/components/Toast'
+import { useToast } from '@/hooks/useToast'
 import withAuth from '../../HOC/withAuth'
 import { 
   fetchPortfolio, 
@@ -26,6 +28,8 @@ function PortfolioPage() {
   const [modalVisualizarAberto, setModalVisualizarAberto] = useState(false)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
   const [itemSelecionado, setItemSelecionado] = useState(null)
+  
+  const { toasts, success, error, removerToast } = useToast()
 
   useEffect(() => {
     carregarPortfolio()
@@ -34,11 +38,13 @@ function PortfolioPage() {
   const carregarPortfolio = async () => {
     setLoading(true)
     try {
+      console.log('🔄 Carregando portfólio...')
       const data = await fetchPortfolio()
+      console.log('✅ Portfólio carregado:', data.length, 'itens')
       setPortfolio(data)
-    } catch (error) {
-      console.error('Erro ao carregar portfólio:', error)
-      alert('Erro ao carregar portfólio')
+    } catch (err) {
+      console.error('❌ Erro ao carregar portfólio:', err)
+      error('Erro ao carregar portfólio. Verifique o console.')
     } finally {
       setLoading(false)
     }
@@ -46,65 +52,76 @@ function PortfolioPage() {
 
   const adicionarItem = async (dados) => {
     try {
-      // Criar ID temporário para os uploads
+      console.log('📝 Iniciando criação de item do portfólio...')
+      
       const tempId = Date.now().toString()
       
-      // Upload da imagem de capa (obrigatório)
+      console.log('📤 Fazendo upload da imagem...')
       const coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, tempId)
+      console.log('✅ Imagem enviada:', coverImageUrl)
       
-      // Upload do PDF (opcional)
       let presentationPdfUrl = null
       if (dados.pdf) {
+        console.log('📤 Fazendo upload do PDF...')
         presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, tempId)
+        console.log('✅ PDF enviado:', presentationPdfUrl)
       }
       
-      // Criar item no portfólio
+      console.log('💾 Salvando item no banco de dados...')
       await createPortfolioItem({
         projectName: dados.projectName,
         description: dados.description,
         frameworks: dados.frameworks,
         coverImageUrl,
         presentationPdfUrl,
-        projectId: null, // Não está vinculado a projeto específico
+        projectId: null,
         isFeatured: false,
         displayOrder: 0
       })
       
+      console.log('✅ Item adicionado com sucesso!')
       await carregarPortfolio()
       setModalNovoAberto(false)
-    } catch (error) {
-      console.error('Erro ao adicionar item:', error)
-      alert('Erro ao adicionar item ao portfólio')
+      success('Projeto adicionado ao portfólio com sucesso!')
+    } catch (err) {
+      console.error('❌ Erro completo ao adicionar item:', err)
+      error(`Erro ao adicionar projeto: ${err.message}`)
     }
   }
 
   const editarItem = async (dados) => {
     try {
+      console.log('📝 Iniciando edição de item do portfólio...')
       let coverImageUrl = itemSelecionado.cover_image_url
       let presentationPdfUrl = itemSelecionado.presentation_pdf_url
 
-      // Se houver nova imagem, fazer upload e deletar a antiga
       if (dados.imagemCapa) {
+        console.log('📤 Fazendo upload da nova imagem...')
         if (itemSelecionado.cover_image_url) {
+          console.log('🗑️ Deletando imagem antiga...')
           await deletePortfolioCover(itemSelecionado.cover_image_url)
         }
         coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, itemSelecionado.id)
+        console.log('✅ Nova imagem enviada:', coverImageUrl)
       }
 
-      // Se houver novo PDF, fazer upload e deletar o antigo
       if (dados.pdf) {
+        console.log('📤 Fazendo upload do novo PDF...')
         if (itemSelecionado.presentation_pdf_url) {
+          console.log('🗑️ Deletando PDF antigo...')
           await deletePortfolioPdf(itemSelecionado.presentation_pdf_url)
         }
         presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, itemSelecionado.id)
+        console.log('✅ Novo PDF enviado:', presentationPdfUrl)
       }
 
-      // Se o PDF foi removido
       if (dados.removeuPdf && itemSelecionado.presentation_pdf_url) {
+        console.log('🗑️ Removendo PDF...')
         await deletePortfolioPdf(itemSelecionado.presentation_pdf_url)
         presentationPdfUrl = null
       }
 
+      console.log('💾 Atualizando item no banco de dados...')
       await updatePortfolioItem(itemSelecionado.id, {
         projectName: dados.projectName,
         description: dados.description,
@@ -115,33 +132,41 @@ function PortfolioPage() {
         displayOrder: dados.displayOrder
       })
 
+      console.log('✅ Item editado com sucesso!')
       await carregarPortfolio()
       setModalEditarAberto(false)
       setItemSelecionado(null)
-    } catch (error) {
-      console.error('Erro ao editar item:', error)
-      alert('Erro ao editar item do portfólio')
+      success('Projeto editado com sucesso!')
+    } catch (err) {
+      console.error('❌ Erro ao editar item:', err)
+      error(`Erro ao editar projeto: ${err.message}`)
     }
   }
 
   const excluirItem = async () => {
     try {
-      // Deletar arquivos do storage
+      console.log('🗑️ Iniciando exclusão de item do portfólio...')
+      
       if (itemSelecionado.cover_image_url) {
+        console.log('🗑️ Deletando imagem de capa...')
         await deletePortfolioCover(itemSelecionado.cover_image_url)
       }
       if (itemSelecionado.presentation_pdf_url) {
+        console.log('🗑️ Deletando PDF...')
         await deletePortfolioPdf(itemSelecionado.presentation_pdf_url)
       }
       
-      // Deletar item do banco
+      console.log('💾 Removendo item do banco de dados...')
       await deletePortfolioItem(itemSelecionado.id)
+      
+      console.log('✅ Item excluído com sucesso!')
       await carregarPortfolio()
       setModalExcluirAberto(false)
       setItemSelecionado(null)
-    } catch (error) {
-      console.error('Erro ao excluir item:', error)
-      alert('Erro ao excluir item do portfólio')
+      success('Projeto excluído do portfólio com sucesso!')
+    } catch (err) {
+      console.error('❌ Erro ao excluir item:', err)
+      error(`Erro ao excluir projeto: ${err.message}`)
     }
   }
 
@@ -162,6 +187,19 @@ function PortfolioPage() {
 
   return (
     <div className="portfolio-page">
+      {/* Toasts */}
+      <div className="toasts-container">
+        {toasts.map(toast => (
+          <Toast
+            key={toast.id}
+            tipo={toast.tipo}
+            mensagem={toast.mensagem}
+            onClose={() => removerToast(toast.id)}
+            duracao={toast.duracao}
+          />
+        ))}
+      </div>
+
       <div className="portfolio-header">
         <h1>Gerenciamento de Portfólio</h1>
         <button className="btn-novo" onClick={() => setModalNovoAberto(true)}>

@@ -1,76 +1,87 @@
 'use client'
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { Building2, LayoutDashboard, FolderKanban, Users, Briefcase, DollarSign, User, Menu, X, LogOut } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { LayoutDashboard, Briefcase, Users, FolderKanban, DollarSign, LogOut, User } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import Image from 'next/image'
 import './Navbar.css'
-import { useAuth } from '@/context/AuthContext'
 
 export default function Navbar() {
   const pathname = usePathname()
-  const [menuAberto, setMenuAberto] = useState(false)
+  const router = useRouter()
   const { logout } = useAuth()
 
   const handleLogout = () => {
-    setMenuAberto(false)
     logout()
+    router.push('/login')
   }
 
-  const navLinks = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/projetos', label: 'Projetos', icon: FolderKanban },
-    { href: '/clientes', label: 'Clientes', icon: Users },
-    { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
-    { href: '/financeiro', label: 'Financeiro', icon: DollarSign },
+  const navItems = [
+    { 
+      href: '/', 
+      label: 'Dashboard', 
+      icon: <LayoutDashboard size={18} /> 
+    },
+    { 
+      href: '/projetos', 
+      label: 'Projetos', 
+      icon: <Briefcase size={18} /> 
+    },
+    { 
+      href: '/clientes', 
+      label: 'Clientes', 
+      icon: <Users size={18} /> 
+    },
+    { 
+      href: '/portfolio', 
+      label: 'Portfolio', 
+      icon: <FolderKanban size={18} /> 
+    },
+    { 
+      href: '/financeiro', 
+      label: 'Financeiro', 
+      icon: <DollarSign size={18} /> 
+    }
   ]
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link href="/" className="navbar-brand">
-          <Building2 size={28} strokeWidth={2.5} />
-          <span>Minha Empresa</span>
-        </Link>
-
-        <div className={`navbar-links ${menuAberto ? 'mobile-open' : ''}`}>
-          {navLinks.map((link) => {
-            const Icon = link.icon
-            const isActive = pathname === link.href
-            
-            return (
-              <Link 
-                key={link.href}
-                href={link.href} 
-                className={`nav-link ${isActive ? 'active' : ''}`}
-                onClick={() => setMenuAberto(false)}
-              >
-                <Icon size={20} />
-                <span>{link.label}</span>
-              </Link>
-            )
-          })}
-          {/* Botão de Sair para o menu mobile */}
-          <button className="nav-link-logout" onClick={handleLogout}>
-            <LogOut size={20} />
-            <span>Sair</span>
-          </button>
+        {/* Logo */}
+        <div className="navbar-logo">
+          <Image 
+            src="/favicon.ico" 
+            alt="Nexit Logo" 
+            width={32} 
+            height={32}
+            className="logo-icon"
+          />
+          <span className="logo-text">Nexit Tech</span>
         </div>
 
-        {/* Itens da direita para Desktop */}
-        <div className="navbar-desktop-right">
-          <div className="navbar-user">
-            <User size={20} />
+        {/* Navigation Links */}
+        <div className="navbar-links">
+          {navItems.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={`nav-link ${pathname === item.href ? 'active' : ''}`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* User Actions */}
+        <div className="navbar-actions">
+          <button className="nav-link" title="Usuário">
+            <User size={18} />
             <span>Usuário</span>
-          </div>
-          <button className="btn-logout" onClick={logout} title="Sair">
-            <LogOut size={20} />
+          </button>
+          <button className="nav-link logout-btn" onClick={handleLogout} title="Sair">
+            <LogOut size={18} />
           </button>
         </div>
-
-        {/* Botão de Menu Mobile */}
-        <button className="navbar-toggle" onClick={() => setMenuAberto(!menuAberto)}>
-          {menuAberto ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
     </nav>
   )

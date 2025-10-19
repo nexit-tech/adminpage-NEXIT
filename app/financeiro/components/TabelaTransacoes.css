@@ -1,0 +1,208 @@
+.tabela-container {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.tabela-loading,
+.tabela-vazia {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.tabela-transacoes {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela-transacoes thead {
+  background-color: var(--bg-secondary);
+}
+
+.tabela-transacoes th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabela-transacoes td {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.tabela-transacoes tbody tr:hover {
+  background-color: var(--bg-secondary);
+}
+
+.tipo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tipo-badge.entrada {
+  background-color: #d1fae5;
+  color: var(--accent-green);
+}
+
+.tipo-badge.saida {
+  background-color: #fee2e2;
+  color: var(--accent-red);
+}
+
+.descricao {
+  font-weight: 500;
+}
+
+.valor {
+  font-weight: 700;
+}
+
+.valor.entrada {
+  color: var(--accent-green);
+}
+
+.valor.saida {
+  color: var(--accent-red);
+}
+
+.btn-deletar-transacao {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.btn-deletar-transacao:hover {
+  background-color: #fee2e2;
+  color: var(--accent-red);
+}
+
+@media (max-width: 968px) {
+  .tabela-container {
+    overflow-x: auto;
+  }
+
+  .tabela-transacoes {
+    min-width: 800px;
+  }
+}
+
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.5rem;
+}
+
+.upload-area:hover {
+  border-color: var(--accent-blue);
+  background-color: #dbeafe;
+}
+
+.upload-area svg {
+  color: var(--accent-blue);
+}
+
+.upload-area span {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.upload-hint {
+  font-size: 0.75rem !important;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.arquivo-selecionado {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+}
+
+.arquivo-selecionado svg {
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.arquivo-selecionado span {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-remover {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-remover:hover {
+  background-color: #fee2e2;
+  color: var(--accent-red);
+}
+
+.btn-ver-comprovante {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--accent-blue);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-ver-comprovante:hover {
+  background-color: #dbeafe;
+  border-color: var(--accent-blue);
+}
+
+.sem-comprovante {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 968px) {
+  .tabela-transacoes {
+    min-width: 900px;
+  }
+}

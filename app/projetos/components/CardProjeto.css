@@ -1,0 +1,178 @@
+.card-projeto {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.card-projeto:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--accent-blue);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1.2rem;
+  gap: 1rem;
+}
+
+.card-header h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.status-andamento {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-planejamento {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-concluido {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+/* Barra de Progresso */
+.card-progresso {
+  margin-bottom: 1.2rem;
+  padding: 0.75rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.progresso-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progresso-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progresso-valor {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+}
+
+.progresso-barra {
+  width: 100%;
+  height: 8px;
+  background-color: var(--bg-main);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progresso-preenchimento {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), #60a5fa);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.card-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.card-info svg {
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.card-footer {
+  margin-bottom: 0.75rem;
+}
+
+.card-footer-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  background-color: var(--bg-main);
+}
+
+.btn-tarefas {
+  width: 100%;
+  color: var(--accent-green);
+}
+
+.btn-tarefas:hover {
+  background-color: #d1fae5;
+  border-color: var(--accent-green);
+}
+
+.btn-editar {
+  color: var(--accent-blue);
+}
+
+.btn-editar:hover {
+  background-color: #dbeafe;
+  border-color: var(--accent-blue);
+}
+
+.btn-deletar {
+  color: var(--accent-red);
+}
+
+.btn-deletar:hover {
+  background-color: #fee2e2;
+  border-color: var(--accent-red);
+}
+
+.btn-action:active {
+  transform: scale(0.98);
+}

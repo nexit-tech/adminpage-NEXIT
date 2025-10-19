@@ -1,0 +1,307 @@
+.modal-tarefas {
+  max-width: 700px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header .projeto-nome {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+/* Progresso Geral */
+.tarefas-progresso {
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  margin: 0 2rem 1.5rem 2rem;
+}
+
+.progresso-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tarefas-progresso .progresso-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tarefas-progresso .progresso-valor {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.progresso-barra-grande {
+  width: 100%;
+  height: 12px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progresso-barra-grande .progresso-preenchimento {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+/* Corpo das Tarefas */
+.tarefas-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 2rem;
+  margin-bottom: 1rem;
+}
+
+.tarefas-vazio {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-secondary);
+}
+
+.tarefas-vazio p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.tarefas-vazio .subtitulo {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.tarefas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Tarefa Item */
+.tarefa-item {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.tarefa-item:hover {
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.tarefa-principal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tarefa-checkbox-area {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  accent-color: var(--accent-blue);
+}
+
+.tarefa-checkbox-area span {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  word-break: break-word;
+}
+
+.tarefa-checkbox-area span.concluida {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.tarefa-acoes {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  padding: 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-icon:hover {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+}
+
+.btn-icon.btn-deletar:hover {
+  background-color: #fee2e2;
+  color: var(--accent-red);
+}
+
+/* Subtarefas */
+.subtarefas-lista {
+  margin-top: 0.75rem;
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subtarefa-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background-color: var(--bg-main);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.subtarefa-item .custom-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.subtarefa-item span {
+  font-size: 0.9rem;
+}
+
+/* Footer */
+.modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-adicionar-tarefa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--bg-secondary);
+  color: var(--accent-blue);
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-adicionar-tarefa:hover {
+  background-color: #dbeafe;
+  border-color: var(--accent-blue);
+}
+
+.footer-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-cancelar,
+.btn-salvar {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.btn-cancelar:hover {
+  background-color: #e5e7eb;
+  color: var(--text-primary);
+}
+
+.btn-salvar {
+  background-color: var(--accent-green);
+  color: white;
+}
+
+.btn-salvar:hover {
+  background-color: #059669;
+}
+
+/* Scrollbar */
+.tarefas-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tarefas-body::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.tarefas-body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 8px;
+}
+
+.tarefas-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .modal-tarefas {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .tarefas-progresso,
+  .tarefas-body,
+  .modal-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .subtarefas-lista {
+    padding-left: 1rem;
+  }
+
+  .tarefa-principal {
+    flex-wrap: wrap;
+  }
+
+  .footer-actions {
+    flex-direction: column;
+  }
+}

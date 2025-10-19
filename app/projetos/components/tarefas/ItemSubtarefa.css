@@ -1,0 +1,19 @@
+.subtarefa-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  background-color: var(--bg-main);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.subtarefa-item .custom-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+.subtarefa-item span {
+  font-size: 0.9rem;
+}

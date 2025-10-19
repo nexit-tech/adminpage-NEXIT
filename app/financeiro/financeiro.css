@@ -1,0 +1,207 @@
+.financeiro-page {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.financeiro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.financeiro-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-exportar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--accent-green);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-exportar:hover {
+  background-color: #059669;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-novo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--accent-blue);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-novo:hover {
+  background-color: #2563eb;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.resumo-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filtros-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.financeiro-filtros {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  flex: 1;
+  min-width: 300px;
+}
+
+.filtro-btn {
+  padding: 0.6rem 1.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-main);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filtro-btn:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.filtro-btn.active {
+  background-color: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.filtros-data {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  padding: 1rem;
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  flex: 1;
+  min-width: 500px;
+}
+
+.btn-limpar-filtro {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: fit-content;
+  margin-bottom: 0.5rem;
+}
+
+.btn-limpar-filtro:hover {
+  background-color: #fee2e2;
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+@media (max-width: 968px) {
+  .filtros-container {
+    flex-direction: column;
+  }
+
+  .financeiro-filtros,
+  .filtros-data {
+    min-width: 100%;
+  }
+
+  .filtros-data {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-limpar-filtro {
+    width: 100%;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .financeiro-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn-exportar,
+  .btn-novo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .resumo-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .financeiro-filtros {
+    flex-direction: column;
+  }
+
+  .filtro-btn {
+    width: 100%;
+  }
+}

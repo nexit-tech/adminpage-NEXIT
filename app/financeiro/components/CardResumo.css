@@ -1,0 +1,70 @@
+.card-resumo {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.card-resumo:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card-resumo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-resumo-header h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.card-resumo-icone {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-resumo.entrada .card-resumo-icone {
+  background-color: #d1fae5;
+  color: var(--accent-green);
+}
+
+.card-resumo.saida .card-resumo-icone {
+  background-color: #fee2e2;
+  color: var(--accent-red);
+}
+
+.card-resumo.saldo .card-resumo-icone {
+  background-color: #dbeafe;
+  color: var(--accent-blue);
+}
+
+.card-resumo-valor {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.card-resumo.entrada .card-resumo-valor {
+  color: var(--accent-green);
+}
+
+.card-resumo.saida .card-resumo-valor {
+  color: var(--accent-red);
+}
+
+.card-resumo.saldo .card-resumo-valor {
+  color: var(--accent-blue);
+}

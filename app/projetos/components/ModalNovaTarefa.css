@@ -1,0 +1,101 @@
+.modal-overlay-nested {
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+}
+
+.modal-nova-tarefa {
+  max-width: 450px;
+  z-index: 1002;
+}
+
+.modal-nova-tarefa form {
+  padding: 2rem;
+}
+
+.modal-nova-tarefa .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.modal-nova-tarefa .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.modal-nova-tarefa .form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background-color: var(--bg-main);
+  transition: all 0.2s ease;
+}
+
+.modal-nova-tarefa .form-group input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.modal-nova-tarefa .form-group input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modal-nova-tarefa .modal-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.modal-nova-tarefa .btn-cancelar,
+.modal-nova-tarefa .btn-salvar {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-nova-tarefa .btn-cancelar {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.modal-nova-tarefa .btn-cancelar:hover {
+  background-color: #e5e7eb;
+  color: var(--text-primary);
+}
+
+.modal-nova-tarefa .btn-salvar {
+  background-color: var(--accent-blue);
+  color: white;
+}
+
+.modal-nova-tarefa .btn-salvar:hover {
+  background-color: #2563eb;
+}
+
+.modal-nova-tarefa .btn-cancelar:active,
+.modal-nova-tarefa .btn-salvar:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .modal-nova-tarefa {
+    width: 90%;
+  }
+
+  .modal-nova-tarefa form,
+  .modal-nova-tarefa .modal-footer {
+    padding: 1.25rem;
+  }
+}

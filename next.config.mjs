@@ -2,9 +2,8 @@
 const nextConfig = {
   output: 'export',
   images: {
-    unoptimized: true, // evita erro com imagens otimizadas
+    unoptimized: true, // Adicione esta linha
   },
-  distDir: 'out', // define a pasta de saída (opcional)
 };
 
 export default nextConfig;

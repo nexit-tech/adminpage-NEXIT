@@ -1,369 +1,254 @@
-// app/portfolio/components/ModalNovoPortfolio.jsx
-'use client'
 import { useState } from 'react'
-import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react'
-import './ModalAdicionarAoPortfolio.css'
+import { X, Upload, Image as ImageIcon, Smartphone, Monitor, Loader2 } from 'lucide-react'
+import './ModalNovoPortfolio.css'
 
-export default function ModalNovoPortfolio({ onClose, onSave }) {
+// Limite de 50MB
+const MAX_FILE_SIZE = 50 * 1024 * 1024
+
+function ModalNovoPortfolio({ onClose, onSave }) {
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     projectName: '',
     description: '',
-    frameworks: []
+    frameworks: [],
+    imagemCapa: null,
+    pdf: null,
+    imagensMobile: [],
+    imagensDesktop: []
   })
+
   const [frameworkInput, setFrameworkInput] = useState('')
-  const [imagemCapa, setImagemCapa] = useState(null)
-  const [imagensMobile, setImagensMobile] = useState([])
-  const [imagensDesktop, setImagensDesktop] = useState([])
-  const [pdf, setPdf] = useState(null)
-  const [uploading, setUploading] = useState(false)
 
-  const handleImagemChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Imagem muito grande. Tamanho máximo: 5MB')
-        return
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const validarArquivos = (arquivos) => {
+    const lista = Array.isArray(arquivos) ? arquivos : [arquivos]
+    for (const file of lista) {
+      if (file.size > MAX_FILE_SIZE) {
+        alert(`O arquivo "${file.name}" é muito grande! O limite é 50MB.`)
+        return false
       }
-      
-      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
-      if (!tiposPermitidos.includes(file.type)) {
-        alert('Tipo de arquivo não permitido. Use: JPG, PNG ou WEBP')
-        return
+    }
+    return true
+  }
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target
+    if (!files || files.length === 0) return
+
+    if (name === 'imagensMobile' || name === 'imagensDesktop') {
+      const arquivosArray = Array.from(files)
+      if (validarArquivos(arquivosArray)) {
+        setFormData(prev => ({ ...prev, [name]: arquivosArray }))
+      } else {
+        e.target.value = ''
       }
-      
-      setImagemCapa(file)
+    } else {
+      const arquivo = files[0]
+      if (validarArquivos(arquivo)) {
+        setFormData(prev => ({ ...prev, [name]: arquivo }))
+      } else {
+        e.target.value = ''
+      }
     }
   }
 
-  const handleImagensMobileChange = (e) => {
-    const files = Array.from(e.target.files)
-    const validFiles = files.filter(file => {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name}: Arquivo muito grande (máx 5MB)`)
-        return false
-      }
-      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
-      if (!tiposPermitidos.includes(file.type)) {
-        alert(`${file.name}: Tipo não permitido`)
-        return false
-      }
-      return true
-    })
-    setImagensMobile(validFiles)
-  }
-
-  const handleImagensDesktopChange = (e) => {
-    const files = Array.from(e.target.files)
-    const validFiles = files.filter(file => {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`${file.name}: Arquivo muito grande (máx 5MB)`)
-        return false
-      }
-      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
-      if (!tiposPermitidos.includes(file.type)) {
-        alert(`${file.name}: Tipo não permitido`)
-        return false
-      }
-      return true
-    })
-    setImagensDesktop(validFiles)
-  }
-
-  const handlePdfChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert('PDF muito grande. Tamanho máximo: 10MB')
-        return
-      }
-      
-      if (file.type !== 'application/pdf') {
-        alert('Tipo de arquivo não permitido. Use apenas PDF')
-        return
-      }
-      
-      setPdf(file)
-    }
-  }
-
-  const adicionarFramework = () => {
-    if (frameworkInput.trim() && !formData.frameworks.includes(frameworkInput.trim())) {
-      setFormData({
-        ...formData,
-        frameworks: [...formData.frameworks, frameworkInput.trim()]
-      })
+  const addFramework = (e) => {
+    // Previne comportamento padrão se chamado via evento de click ou keydown
+    if (e) e.preventDefault()
+    
+    if (frameworkInput.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        frameworks: [...prev.frameworks, frameworkInput.trim()]
+      }))
       setFrameworkInput('')
     }
   }
 
-  const removerFramework = (framework) => {
-    setFormData({
-      ...formData,
-      frameworks: formData.frameworks.filter(f => f !== framework)
-    })
+  const handleFrameworkKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault() // <--- AQUI ESTÁ O PULO DO GATO
+      addFramework()
+    }
+  }
+
+  const removeFramework = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      frameworks: prev.frameworks.filter((_, i) => i !== index)
+    }))
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    if (formData.frameworks.length === 0) {
-      alert('Adicione pelo menos um framework/tecnologia')
+    if (!formData.imagemCapa) {
+      alert('A imagem de capa é obrigatória!')
       return
     }
 
-    if (!imagemCapa) {
-      alert('A imagem de capa é obrigatória')
-      return
-    }
-
-    setUploading(true)
+    setLoading(true)
 
     try {
-      await onSave({
-        ...formData,
-        imagemCapa,
-        imagensMobile,
-        imagensDesktop,
-        pdf
-      })
+      await onSave(formData)
     } catch (error) {
-      console.error('Erro ao adicionar ao portfólio:', error)
-      alert('Erro ao adicionar projeto ao portfólio')
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  const handleFrameworkKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      adicionarFramework()
+      console.error(error)
+      setLoading(false)
+      alert('Erro ao salvar. Tente novamente.')
     }
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content modal-portfolio" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay">
+      <div className="modal-content modal-portfolio">
         <div className="modal-header">
-          <h2>Novo Projeto no Portfólio</h2>
-          <button className="modal-close" onClick={onClose} disabled={uploading}>×</button>
+          <h2>Novo Item no Portfólio</h2>
+          <button className="btn-close" onClick={onClose} disabled={loading}>
+            <X size={20} />
+          </button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Nome do Projeto *</label>
+            <label>Nome do Projeto</label>
             <input
               type="text"
               name="projectName"
               value={formData.projectName}
               onChange={handleChange}
-              placeholder="Ex: Sistema de Gestão Empresarial"
               required
-              disabled={uploading}
+              disabled={loading}
+              onKeyDown={(e) => { if(e.key === 'Enter') e.preventDefault() }} // Previne envio acidental no nome
             />
           </div>
 
           <div className="form-group">
-            <label>Descrição do Projeto *</label>
+            <label>Descrição</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Descreva o projeto, seus objetivos e resultados..."
               rows="4"
               required
-              disabled={uploading}
+              disabled={loading}
             />
           </div>
 
+          <div className="uploads-grid">
+            {/* Capa */}
+            <div className="form-group upload-box">
+              <label><ImageIcon size={16} /> Imagem de Capa (Max 50MB)</label>
+              <div className="file-input-wrapper">
+                <input
+                  type="file"
+                  name="imagemCapa"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  id="novo-capa"
+                  required
+                  disabled={loading}
+                />
+                <label htmlFor="novo-capa" className={`btn-upload ${loading ? 'disabled' : ''}`}>
+                  {formData.imagemCapa ? formData.imagemCapa.name : 'Selecionar Capa'}
+                </label>
+              </div>
+            </div>
+
+            {/* PDF */}
+            <div className="form-group upload-box">
+              <label><Upload size={16} /> Apresentação PDF (Max 50MB)</label>
+              <div className="file-input-wrapper">
+                <input
+                  type="file"
+                  name="pdf"
+                  onChange={handleFileChange}
+                  accept=".pdf"
+                  id="novo-pdf"
+                  disabled={loading}
+                />
+                <label htmlFor="novo-pdf" className={`btn-upload secondary ${loading ? 'disabled' : ''}`}>
+                  {formData.pdf ? formData.pdf.name : 'Selecionar PDF'}
+                </label>
+              </div>
+            </div>
+
+            {/* Mobile */}
+            <div className="form-group upload-box">
+              <label><Smartphone size={16} /> Imagens Mobile (Max 50MB)</label>
+              <div className="file-input-wrapper">
+                <input
+                  type="file"
+                  name="imagensMobile"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  multiple
+                  id="novo-mobile"
+                  disabled={loading}
+                />
+                <label htmlFor="novo-mobile" className={`btn-upload secondary ${loading ? 'disabled' : ''}`}>
+                  {formData.imagensMobile.length > 0 ? `${formData.imagensMobile.length} arquivos` : 'Selecionar Mobile'}
+                </label>
+              </div>
+            </div>
+
+            {/* Desktop */}
+            <div className="form-group upload-box">
+              <label><Monitor size={16} /> Imagens Desktop (Max 50MB)</label>
+              <div className="file-input-wrapper">
+                <input
+                  type="file"
+                  name="imagensDesktop"
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  multiple
+                  id="novo-desktop"
+                  disabled={loading}
+                />
+                <label htmlFor="novo-desktop" className={`btn-upload secondary ${loading ? 'disabled' : ''}`}>
+                  {formData.imagensDesktop.length > 0 ? `${formData.imagensDesktop.length} arquivos` : 'Selecionar Desktop'}
+                </label>
+              </div>
+            </div>
+          </div>
+
           <div className="form-group">
-            <label>Frameworks e Tecnologias *</label>
-            <div className="framework-input-container">
+            <label>Frameworks (Tecle Enter para adicionar)</label>
+            <div className="framework-input">
               <input
                 type="text"
                 value={frameworkInput}
                 onChange={(e) => setFrameworkInput(e.target.value)}
-                onKeyPress={handleFrameworkKeyPress}
-                placeholder="Ex: React, Node.js, PostgreSQL..."
-                disabled={uploading}
+                onKeyDown={handleFrameworkKeyDown} // <--- AQUI A CORREÇÃO
+                placeholder="Ex: React, Node.js..."
+                disabled={loading}
               />
-              <button 
-                type="button" 
-                className="btn-add-framework"
-                onClick={adicionarFramework}
-                disabled={uploading}
-              >
-                Adicionar
-              </button>
+              <button onClick={addFramework} type="button" disabled={loading}>Adicionar</button>
             </div>
-            
-            {formData.frameworks.length > 0 && (
-              <div className="frameworks-lista">
-                {formData.frameworks.map((fw, idx) => (
-                  <div key={idx} className="framework-tag">
-                    <span>{fw}</span>
-                    <button 
-                      type="button" 
-                      onClick={() => removerFramework(fw)}
-                      disabled={uploading}
-                    >
-                      <X size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <div className="frameworks-list">
+              {formData.frameworks.map((fw, index) => (
+                <span key={index} className="tag">
+                  {fw}
+                  <button type="button" onClick={() => removeFramework(index)} disabled={loading}><X size={12} /></button>
+                </span>
+              ))}
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Imagem de Capa * <span className="label-hint">(JPG, PNG ou WEBP - máx. 5MB)</span></label>
-            
-            {!imagemCapa ? (
-              <label className="upload-area">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/jpg,image/webp"
-                  onChange={handleImagemChange}
-                  style={{ display: 'none' }}
-                  disabled={uploading}
-                />
-                <ImageIcon size={32} />
-                <span>Clique para selecionar imagem de capa</span>
-                <span className="upload-hint">Recomendado: 1200x800px</span>
-              </label>
-            ) : (
-              <div className="arquivo-selecionado">
-                <ImageIcon size={20} />
-                <span>{imagemCapa.name}</span>
-                <button 
-                  type="button" 
-                  onClick={() => setImagemCapa(null)} 
-                  className="btn-remover"
-                  disabled={uploading}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>Imagens Mobile <span className="label-hint">(Múltiplas imagens - JPG, PNG ou WEBP)</span></label>
-            
-            {imagensMobile.length === 0 ? (
-              <label className="upload-area">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/jpg,image/webp"
-                  onChange={handleImagensMobileChange}
-                  style={{ display: 'none' }}
-                  multiple
-                  disabled={uploading}
-                />
-                <ImageIcon size={32} />
-                <span>Clique para selecionar imagens mobile</span>
-              </label>
-            ) : (
-              <div className="arquivo-selecionado">
-                <ImageIcon size={20} />
-                <span>{imagensMobile.length} imagens selecionadas</span>
-                <button 
-                  type="button" 
-                  onClick={() => setImagensMobile([])} 
-                  className="btn-remover"
-                  disabled={uploading}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>Imagens Desktop <span className="label-hint">(Múltiplas imagens - JPG, PNG ou WEBP)</span></label>
-            
-            {imagensDesktop.length === 0 ? (
-              <label className="upload-area">
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/jpg,image/webp"
-                  onChange={handleImagensDesktopChange}
-                  style={{ display: 'none' }}
-                  multiple
-                  disabled={uploading}
-                />
-                <ImageIcon size={32} />
-                <span>Clique para selecionar imagens desktop</span>
-              </label>
-            ) : (
-              <div className="arquivo-selecionado">
-                <ImageIcon size={20} />
-                <span>{imagensDesktop.length} imagens selecionadas</span>
-                <button 
-                  type="button" 
-                  onClick={() => setImagensDesktop([])} 
-                  className="btn-remover"
-                  disabled={uploading}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="form-group">
-            <label>PDF de Apresentação <span className="label-hint">(Opcional - máx. 10MB)</span></label>
-            
-            {!pdf ? (
-              <label className="upload-area">
-                <input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handlePdfChange}
-                  style={{ display: 'none' }}
-                  disabled={uploading}
-                />
-                <FileText size={32} />
-                <span>Clique para anexar PDF de apresentação</span>
-              </label>
-            ) : (
-              <div className="arquivo-selecionado">
-                <FileText size={20} />
-                <span>{pdf.name}</span>
-                <button 
-                  type="button" 
-                  onClick={() => setPdf(null)} 
-                  className="btn-remover"
-                  disabled={uploading}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="modal-footer">
-            <button 
-              type="button" 
-              className="btn-cancelar" 
-              onClick={onClose}
-              disabled={uploading}
-            >
+          <div className="modal-actions">
+            <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
               Cancelar
             </button>
-            <button 
-              type="submit" 
-              className="btn-salvar"
-              disabled={uploading}
-            >
-              {uploading ? 'Adicionando...' : 'Adicionar ao Portfólio'}
+            <button type="submit" className="btn-confirm" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="spinner" size={18} /> Salvando...
+                </>
+              ) : (
+                'Salvar Projeto'
+              )}
             </button>
           </div>
         </form>
@@ -371,3 +256,5 @@ export default function ModalNovoPortfolio({ onClose, onSave }) {
     </div>
   )
 }
+
+export default ModalNovoPortfolio

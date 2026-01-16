@@ -18,7 +18,9 @@ import {
   createTransaction,
   createPortfolioItem,
   uploadPortfolioCover,
-  uploadPortfolioPdf
+  uploadPortfolioPdf,
+  uploadPortfolioMobileImages, // <--- ADICIONADO
+  uploadPortfolioDesktopImages // <--- ADICIONADO
 } from '@/lib/supabaseQueries'
 
 function ProjetosContent() {
@@ -40,6 +42,7 @@ function ProjetosContent() {
     setLoading(true)
     try {
       const data = await fetchProjects()
+      // Mapeamento dos dados do banco para o front
       const projetosFormatados = data.map(p => ({
         id: p.id,
         nome: p.project_name,
@@ -66,8 +69,6 @@ function ProjetosContent() {
   const adicionarProjeto = async (novoProjeto) => {
     try {
       const projetoCriado = await createProject(novoProjeto)
-      
-      // AUTOMAÇÃO: Registrar entrada automática se houver valor de entrada
       if (novoProjeto.valorEntrada > 0) {
         await createTransaction({
           descricao: `Entrada do projeto: ${novoProjeto.nome}`,
@@ -79,25 +80,22 @@ function ProjetosContent() {
           projetoId: projetoCriado.id
         })
       }
-      
       await carregarProjetos()
       setModalNovoAberto(false)
     } catch (error) {
       console.error('Erro ao adicionar projeto:', error)
-      alert('Erro ao criar projeto. Verifique o console.')
+      alert('Erro ao criar projeto.')
     }
   }
 
   const editarProjeto = async (projetoEditado) => {
     try {
       const projetoAnterior = projetos.find(p => p.id === projetoEditado.id)
-      
       await updateProject(projetoEditado.id, projetoEditado)
       
-      // AUTOMAÇÃO: Se o projeto foi marcado como "Concluído", registrar valor restante
+      // Se concluiu agora, lança pagamento restante e abre modal de portfólio
       if (projetoAnterior.status !== 'Concluído' && projetoEditado.status === 'Concluído') {
         const valorRestante = projetoEditado.valorProjeto - projetoEditado.valorEntrada
-        
         if (valorRestante > 0) {
           await createTransaction({
             descricao: `Pagamento final do projeto: ${projetoEditado.nome}`,
@@ -109,8 +107,6 @@ function ProjetosContent() {
             projetoId: projetoEditado.id
           })
         }
-        
-        // NOVO: Abrir modal para adicionar ao portfólio
         setProjetoSelecionado(projetoEditado)
         setModalPortfolioAberto(true)
       }
@@ -122,7 +118,7 @@ function ProjetosContent() {
       }
     } catch (error) {
       console.error('Erro ao editar projeto:', error)
-      alert('Erro ao editar projeto. Verifique o console.')
+      alert('Erro ao editar projeto.')
     }
   }
 
@@ -134,31 +130,44 @@ function ProjetosContent() {
       setProjetoSelecionado(null)
     } catch (error) {
       console.error('Erro ao excluir projeto:', error)
-      alert('Erro ao excluir projeto. Verifique o console.')
+      alert('Erro ao excluir projeto.')
     }
   }
 
   const adicionarAoPortfolio = async (dados) => {
     try {
-      // Criar ID temporário para os uploads
       const tempId = Date.now().toString()
       
-      // Upload da imagem de capa (obrigatório)
+      // 1. Capa (Obrigatória)
       const coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, tempId)
       
-      // Upload do PDF (opcional)
+      // 2. Mobile (Opcional, Múltiplos)
+      let mobileImagesUrls = []
+      if (dados.imagensMobile && dados.imagensMobile.length > 0) {
+        mobileImagesUrls = await uploadPortfolioMobileImages(dados.imagensMobile, tempId)
+      }
+
+      // 3. Desktop (Opcional, Múltiplos)
+      let desktopImagesUrls = []
+      if (dados.imagensDesktop && dados.imagensDesktop.length > 0) {
+        desktopImagesUrls = await uploadPortfolioDesktopImages(dados.imagensDesktop, tempId)
+      }
+      
+      // 4. PDF (Opcional)
       let presentationPdfUrl = null
       if (dados.pdf) {
         presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, tempId)
       }
       
-      // Criar item no portfólio
+      // 5. Salvar
       await createPortfolioItem({
         projectName: dados.projectName,
         description: dados.description,
         frameworks: dados.frameworks,
         coverImageUrl,
         presentationPdfUrl,
+        mobileImagesUrls,  // Passando os arrays corretos
+        desktopImagesUrls, // Passando os arrays corretos
         projectId: dados.projectId,
         isFeatured: false,
         displayOrder: 0
@@ -188,37 +197,21 @@ function ProjetosContent() {
     setModalTarefasAberto(true)
   }
 
-  if (loading) {
-    return (
-      <div className="projetos-page">
-        <div className="loading-container">
-          <p>Carregando projetos...</p>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return <div className="projetos-page"><div className="loading-container"><p>Carregando projetos...</p></div></div>
 
   return (
     <div className="projetos-page">
       <div className="projetos-header">
         <h1>Gerenciamento de Projetos</h1>
-        <button className="btn-novo" onClick={() => setModalNovoAberto(true)}>
-          + Novo Projeto
-        </button>
+        <button className="btn-novo" onClick={() => setModalNovoAberto(true)}>+ Novo Projeto</button>
       </div>
 
       <div className="projetos-tabs">
-        <button 
-          className={`tab-btn ${abaAtiva === 'ativos' ? 'active' : ''}`}
-          onClick={() => setAbaAtiva('ativos')}
-        >
+        <button className={`tab-btn ${abaAtiva === 'ativos' ? 'active' : ''}`} onClick={() => setAbaAtiva('ativos')}>
           <span>Projetos Ativos</span>
           <span className="tab-badge">{projetosAtivos.length}</span>
         </button>
-        <button 
-          className={`tab-btn ${abaAtiva === 'finalizados' ? 'active' : ''}`}
-          onClick={() => setAbaAtiva('finalizados')}
-        >
+        <button className={`tab-btn ${abaAtiva === 'finalizados' ? 'active' : ''}`} onClick={() => setAbaAtiva('finalizados')}>
           <Archive size={18} />
           <span>Projetos Finalizados</span>
           <span className="tab-badge finalizados">{projetosFinalizados.length}</span>
@@ -226,39 +219,21 @@ function ProjetosContent() {
       </div>
 
       <div className="projetos-content">
-        {abaAtiva === 'ativos' ? (
-          <ListaProjetos 
-            projetos={projetosAtivos} 
-            onEditar={handleEditar}
-            onExcluir={handleExcluir}
-            onTarefas={handleTarefas}
-            tipo="ativos"
-          />
-        ) : (
-          <ListaProjetos 
-            projetos={projetosFinalizados} 
-            onEditar={handleEditar}
-            onExcluir={handleExcluir}
-            onTarefas={handleTarefas}
-            tipo="finalizados"
-          />
-        )}
+        <ListaProjetos 
+          projetos={abaAtiva === 'ativos' ? projetosAtivos : projetosFinalizados} 
+          onEditar={handleEditar}
+          onExcluir={handleExcluir}
+          onTarefas={handleTarefas}
+          tipo={abaAtiva}
+        />
       </div>
 
-      {modalNovoAberto && (
-        <ModalNovoProjeto 
-          onClose={() => setModalNovoAberto(false)}
-          onSave={adicionarProjeto}
-        />
-      )}
-
+      {modalNovoAberto && <ModalNovoProjeto onClose={() => setModalNovoAberto(false)} onSave={adicionarProjeto} />}
+      
       {modalEditarAberto && projetoSelecionado && (
         <ModalEditarProjeto 
           projeto={projetoSelecionado}
-          onClose={() => {
-            setModalEditarAberto(false)
-            setProjetoSelecionado(null)
-          }}
+          onClose={() => { setModalEditarAberto(false); setProjetoSelecionado(null) }}
           onSave={editarProjeto}
         />
       )}
@@ -266,10 +241,7 @@ function ProjetosContent() {
       {modalExcluirAberto && projetoSelecionado && (
         <ModalExcluirProjeto 
           projeto={projetoSelecionado}
-          onClose={() => {
-            setModalExcluirAberto(false)
-            setProjetoSelecionado(null)
-          }}
+          onClose={() => { setModalExcluirAberto(false); setProjetoSelecionado(null) }}
           onConfirm={excluirProjeto}
         />
       )}
@@ -277,20 +249,14 @@ function ProjetosContent() {
       {modalTarefasAberto && projetoSelecionado && (
         <ModalTarefas 
           projeto={projetoSelecionado}
-          onClose={() => {
-            setModalTarefasAberto(false)
-            setProjetoSelecionado(null)
-          }}
+          onClose={() => { setModalTarefasAberto(false); setProjetoSelecionado(null) }}
         />
       )}
 
       {modalPortfolioAberto && projetoSelecionado && (
         <ModalAdicionarAoPortfolio
           projeto={projetoSelecionado}
-          onClose={() => {
-            setModalPortfolioAberto(false)
-            setProjetoSelecionado(null)
-          }}
+          onClose={() => { setModalPortfolioAberto(false); setProjetoSelecionado(null) }}
           onSave={adicionarAoPortfolio}
         />
       )}

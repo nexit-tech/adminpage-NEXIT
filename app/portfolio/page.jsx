@@ -50,99 +50,151 @@ function PortfolioPage() {
     }
   }
 
-  const adicionarItem = async (dados) => {
-    try {
-      console.log('📝 Iniciando criação de item do portfólio...')
-      
-      const tempId = Date.now().toString()
-      
-      console.log('📤 Fazendo upload da imagem...')
-      const coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, tempId)
-      console.log('✅ Imagem enviada:', coverImageUrl)
-      
-      let presentationPdfUrl = null
-      if (dados.pdf) {
-        console.log('📤 Fazendo upload do PDF...')
-        presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, tempId)
-        console.log('✅ PDF enviado:', presentationPdfUrl)
-      }
-      
-      console.log('💾 Salvando item no banco de dados...')
-      await createPortfolioItem({
-        projectName: dados.projectName,
-        description: dados.description,
-        frameworks: dados.frameworks,
-        coverImageUrl,
-        presentationPdfUrl,
-        projectId: null,
-        isFeatured: false,
-        displayOrder: 0
-      })
-      
-      console.log('✅ Item adicionado com sucesso!')
-      await carregarPortfolio()
-      setModalNovoAberto(false)
-      success('Projeto adicionado ao portfólio com sucesso!')
-    } catch (err) {
-      console.error('❌ Erro completo ao adicionar item:', err)
-      error(`Erro ao adicionar projeto: ${err.message}`)
+  // app/portfolio/page.jsx - APENAS A FUNÇÃO adicionarItem
+const adicionarItem = async (dados) => {
+  try {
+    console.log('📝 Iniciando criação de item do portfólio...')
+    
+    const tempId = Date.now().toString()
+    
+    console.log('📤 Fazendo upload da imagem de capa...')
+    const coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, tempId)
+    console.log('✅ Imagem de capa enviada:', coverImageUrl)
+    
+    let mobileImagesUrls = []
+    if (dados.imagensMobile && dados.imagensMobile.length > 0) {
+      console.log('📤 Fazendo upload das imagens mobile...')
+      mobileImagesUrls = await uploadPortfolioMobileImages(dados.imagensMobile, tempId)
+      console.log('✅ Imagens mobile enviadas:', mobileImagesUrls.length)
     }
+    
+    let desktopImagesUrls = []
+    if (dados.imagensDesktop && dados.imagensDesktop.length > 0) {
+      console.log('📤 Fazendo upload das imagens desktop...')
+      desktopImagesUrls = await uploadPortfolioDesktopImages(dados.imagensDesktop, tempId)
+      console.log('✅ Imagens desktop enviadas:', desktopImagesUrls.length)
+    }
+    
+    let presentationPdfUrl = null
+    if (dados.pdf) {
+      console.log('📤 Fazendo upload do PDF...')
+      presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, tempId)
+      console.log('✅ PDF enviado:', presentationPdfUrl)
+    }
+    
+    console.log('💾 Salvando item no banco de dados...')
+    await createPortfolioItem({
+      projectName: dados.projectName,
+      description: dados.description,
+      frameworks: dados.frameworks,
+      coverImageUrl,
+      presentationPdfUrl,
+      mobileImagesUrls,
+      desktopImagesUrls,
+      projectId: null,
+      isFeatured: false,
+      displayOrder: 0
+    })
+    
+    console.log('✅ Item adicionado com sucesso!')
+    await carregarPortfolio()
+    setModalNovoAberto(false)
+    success('Projeto adicionado ao portfólio com sucesso!')
+  } catch (err) {
+    console.error('❌ Erro completo ao adicionar item:', err)
+    error(`Erro ao adicionar projeto: ${err.message}`)
   }
+}
 
-  const editarItem = async (dados) => {
-    try {
-      console.log('📝 Iniciando edição de item do portfólio...')
-      let coverImageUrl = itemSelecionado.cover_image_url
-      let presentationPdfUrl = itemSelecionado.presentation_pdf_url
+const editarItem = async (dados) => {
+  try {
+    console.log('📝 Iniciando edição de item do portfólio...')
+    let coverImageUrl = itemSelecionado.cover_image_url
+    let mobileImagesUrls = itemSelecionado.mobile_images_urls || []
+    let desktopImagesUrls = itemSelecionado.desktop_images_urls || []
+    let presentationPdfUrl = itemSelecionado.presentation_pdf_url
 
-      if (dados.imagemCapa) {
-        console.log('📤 Fazendo upload da nova imagem...')
-        if (itemSelecionado.cover_image_url) {
-          console.log('🗑️ Deletando imagem antiga...')
-          await deletePortfolioCover(itemSelecionado.cover_image_url)
-        }
-        coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, itemSelecionado.id)
-        console.log('✅ Nova imagem enviada:', coverImageUrl)
+    if (dados.imagemCapa) {
+      console.log('📤 Fazendo upload da nova imagem...')
+      if (itemSelecionado.cover_image_url) {
+        console.log('🗑️ Deletando imagem antiga...')
+        await deletePortfolioCover(itemSelecionado.cover_image_url)
       }
+      coverImageUrl = await uploadPortfolioCover(dados.imagemCapa, itemSelecionado.id)
+      console.log('✅ Nova imagem enviada:', coverImageUrl)
+    }
 
-      if (dados.pdf) {
-        console.log('📤 Fazendo upload do novo PDF...')
-        if (itemSelecionado.presentation_pdf_url) {
-          console.log('🗑️ Deletando PDF antigo...')
-          await deletePortfolioPdf(itemSelecionado.presentation_pdf_url)
-        }
-        presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, itemSelecionado.id)
-        console.log('✅ Novo PDF enviado:', presentationPdfUrl)
+    if (dados.imagensMobile && dados.imagensMobile.length > 0) {
+      console.log('📤 Fazendo upload das novas imagens mobile...')
+      if (mobileImagesUrls.length > 0) {
+        console.log('🗑️ Deletando imagens mobile antigas...')
+        await deletePortfolioImages(mobileImagesUrls)
       }
+      mobileImagesUrls = await uploadPortfolioMobileImages(dados.imagensMobile, itemSelecionado.id)
+      console.log('✅ Novas imagens mobile enviadas:', mobileImagesUrls.length)
+    }
 
-      if (dados.removeuPdf && itemSelecionado.presentation_pdf_url) {
-        console.log('🗑️ Removendo PDF...')
+    if (dados.removeuImagensMobile && mobileImagesUrls.length > 0) {
+      console.log('🗑️ Removendo imagens mobile...')
+      await deletePortfolioImages(mobileImagesUrls)
+      mobileImagesUrls = []
+    }
+
+    if (dados.imagensDesktop && dados.imagensDesktop.length > 0) {
+      console.log('📤 Fazendo upload das novas imagens desktop...')
+      if (desktopImagesUrls.length > 0) {
+        console.log('🗑️ Deletando imagens desktop antigas...')
+        await deletePortfolioImages(desktopImagesUrls)
+      }
+      desktopImagesUrls = await uploadPortfolioDesktopImages(dados.imagensDesktop, itemSelecionado.id)
+      console.log('✅ Novas imagens desktop enviadas:', desktopImagesUrls.length)
+    }
+
+    if (dados.removeuImagensDesktop && desktopImagesUrls.length > 0) {
+      console.log('🗑️ Removendo imagens desktop...')
+      await deletePortfolioImages(desktopImagesUrls)
+      desktopImagesUrls = []
+    }
+
+    if (dados.pdf) {
+      console.log('📤 Fazendo upload do novo PDF...')
+      if (itemSelecionado.presentation_pdf_url) {
+        console.log('🗑️ Deletando PDF antigo...')
         await deletePortfolioPdf(itemSelecionado.presentation_pdf_url)
-        presentationPdfUrl = null
       }
-
-      console.log('💾 Atualizando item no banco de dados...')
-      await updatePortfolioItem(itemSelecionado.id, {
-        projectName: dados.projectName,
-        description: dados.description,
-        frameworks: dados.frameworks,
-        coverImageUrl,
-        presentationPdfUrl,
-        isFeatured: dados.isFeatured,
-        displayOrder: dados.displayOrder
-      })
-
-      console.log('✅ Item editado com sucesso!')
-      await carregarPortfolio()
-      setModalEditarAberto(false)
-      setItemSelecionado(null)
-      success('Projeto editado com sucesso!')
-    } catch (err) {
-      console.error('❌ Erro ao editar item:', err)
-      error(`Erro ao editar projeto: ${err.message}`)
+      presentationPdfUrl = await uploadPortfolioPdf(dados.pdf, itemSelecionado.id)
+      console.log('✅ Novo PDF enviado:', presentationPdfUrl)
     }
-  }
 
+    if (dados.removeuPdf && itemSelecionado.presentation_pdf_url) {
+      console.log('🗑️ Removendo PDF...')
+      await deletePortfolioPdf(itemSelecionado.presentation_pdf_url)
+      presentationPdfUrl = null
+    }
+
+    console.log('💾 Atualizando item no banco de dados...')
+    await updatePortfolioItem(itemSelecionado.id, {
+      projectName: dados.projectName,
+      description: dados.description,
+      frameworks: dados.frameworks,
+      coverImageUrl,
+      presentationPdfUrl,
+      mobileImagesUrls,
+      desktopImagesUrls,
+      isFeatured: dados.isFeatured,
+      displayOrder: dados.displayOrder
+    })
+
+    console.log('✅ Item editado com sucesso!')
+    await carregarPortfolio()
+    setModalEditarAberto(false)
+    setItemSelecionado(null)
+    success('Projeto editado com sucesso!')
+  } catch (err) {
+    console.error('❌ Erro ao editar item:', err)
+    error(`Erro ao editar projeto: ${err.message}`)
+  }
+}
   const excluirItem = async () => {
     try {
       console.log('🗑️ Iniciando exclusão de item do portfólio...')

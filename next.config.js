@@ -3,15 +3,17 @@ const nextConfig = {
   // Configuração para produção
   output: 'standalone',
   
-  // Otimizações
-  swcMinify: true,
-  
-  // Imagens
+  // Imagens (Atualizado para remotePatterns)
   images: {
-    domains: [
-      'via.placeholder.com',
-      // Adicione aqui o domínio do Supabase Storage
-      'your-supabase-project.supabase.co'
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'your-supabase-project.supabase.co', // Verifique se este é o domínio correto do seu projeto
+      },
     ],
     unoptimized: true
   },
@@ -24,7 +26,7 @@ const nextConfig = {
     NEXT_PUBLIC_LOGIN_PASSWORD: process.env.NEXT_PUBLIC_LOGIN_PASSWORD,
   },
 
-  // Webpack config (para resolver problemas de módulos)
+  // Webpack config (Mantido para resolver problemas de módulos)
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

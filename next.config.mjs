@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   images: {
-    unoptimized: true, // Adicione esta linha
+    unoptimized: true,
   },
+  // Adicione esta linha para desabilitar o aviso do Turbopack
+  turbopack: {},
 };
 
 export default nextConfig;

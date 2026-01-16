@@ -1,3 +1,4 @@
+// app/portfolio/components/ModalNovoPortfolio.jsx
 'use client'
 import { useState } from 'react'
 import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react'
@@ -11,6 +12,8 @@ export default function ModalNovoPortfolio({ onClose, onSave }) {
   })
   const [frameworkInput, setFrameworkInput] = useState('')
   const [imagemCapa, setImagemCapa] = useState(null)
+  const [imagensMobile, setImagensMobile] = useState([])
+  const [imagensDesktop, setImagensDesktop] = useState([])
   const [pdf, setPdf] = useState(null)
   const [uploading, setUploading] = useState(false)
 
@@ -30,6 +33,40 @@ export default function ModalNovoPortfolio({ onClose, onSave }) {
       
       setImagemCapa(file)
     }
+  }
+
+  const handleImagensMobileChange = (e) => {
+    const files = Array.from(e.target.files)
+    const validFiles = files.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name}: Arquivo muito grande (máx 5MB)`)
+        return false
+      }
+      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+      if (!tiposPermitidos.includes(file.type)) {
+        alert(`${file.name}: Tipo não permitido`)
+        return false
+      }
+      return true
+    })
+    setImagensMobile(validFiles)
+  }
+
+  const handleImagensDesktopChange = (e) => {
+    const files = Array.from(e.target.files)
+    const validFiles = files.filter(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        alert(`${file.name}: Arquivo muito grande (máx 5MB)`)
+        return false
+      }
+      const tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+      if (!tiposPermitidos.includes(file.type)) {
+        alert(`${file.name}: Tipo não permitido`)
+        return false
+      }
+      return true
+    })
+    setImagensDesktop(validFiles)
   }
 
   const handlePdfChange = (e) => {
@@ -85,6 +122,8 @@ export default function ModalNovoPortfolio({ onClose, onSave }) {
       await onSave({
         ...formData,
         imagemCapa,
+        imagensMobile,
+        imagensDesktop,
         pdf
       })
     } catch (error) {
@@ -206,6 +245,70 @@ export default function ModalNovoPortfolio({ onClose, onSave }) {
                 <button 
                   type="button" 
                   onClick={() => setImagemCapa(null)} 
+                  className="btn-remover"
+                  disabled={uploading}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>Imagens Mobile <span className="label-hint">(Múltiplas imagens - JPG, PNG ou WEBP)</span></label>
+            
+            {imagensMobile.length === 0 ? (
+              <label className="upload-area">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/jpg,image/webp"
+                  onChange={handleImagensMobileChange}
+                  style={{ display: 'none' }}
+                  multiple
+                  disabled={uploading}
+                />
+                <ImageIcon size={32} />
+                <span>Clique para selecionar imagens mobile</span>
+              </label>
+            ) : (
+              <div className="arquivo-selecionado">
+                <ImageIcon size={20} />
+                <span>{imagensMobile.length} imagens selecionadas</span>
+                <button 
+                  type="button" 
+                  onClick={() => setImagensMobile([])} 
+                  className="btn-remover"
+                  disabled={uploading}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label>Imagens Desktop <span className="label-hint">(Múltiplas imagens - JPG, PNG ou WEBP)</span></label>
+            
+            {imagensDesktop.length === 0 ? (
+              <label className="upload-area">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/jpg,image/webp"
+                  onChange={handleImagensDesktopChange}
+                  style={{ display: 'none' }}
+                  multiple
+                  disabled={uploading}
+                />
+                <ImageIcon size={32} />
+                <span>Clique para selecionar imagens desktop</span>
+              </label>
+            ) : (
+              <div className="arquivo-selecionado">
+                <ImageIcon size={20} />
+                <span>{imagensDesktop.length} imagens selecionadas</span>
+                <button 
+                  type="button" 
+                  onClick={() => setImagensDesktop([])} 
                   className="btn-remover"
                   disabled={uploading}
                 >
